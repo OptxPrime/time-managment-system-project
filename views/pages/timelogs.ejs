@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <ol>
+            <% timelogs.forEach(function(timelog, index) { %>
+              <li>
+              <ul>
+              <li>
+                 Date: <%= formattedDates[index] %>
+              </li>
+               
+              <li>
+                Total time: <%= timelog.time %>
+              </li>
+                <li>  
+                    Notes:
+                </li>
+                 <ul>
+                 
+                 <% timelog.notes.forEach(function(note){ %>
+                    <li>
+                        <%= note %>
+                    </li>
+                 <% }); %>
+                 </ul>
+                 </ul>
+                 </li>
+            <% }); %>
+        </ol>
+    </body>
+</html>
