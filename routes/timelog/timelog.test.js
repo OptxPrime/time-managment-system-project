@@ -50,7 +50,6 @@ describe('TIMELOGS API', () => {
       notes:[
           'jest test admin notes'
       ],
-      // userId: '60df1fc000744c2eff867017'
     }
     let timelogId;
 
@@ -127,6 +126,7 @@ describe('TIMELOGS API', () => {
         timelogId = response.body._id;
     });
 
+
     test('User manager succesfully updates his timelog', async () => {
       const response = await request(app)
         .patch(`/api/v1/time-logs/${timelogId}`)
@@ -180,6 +180,7 @@ describe('TIMELOGS API', () => {
         timelogId = response.body._id;
     });
 
+
     test('User successfuly updates his timelog', async () => {
       const response = await request(app)
         .patch(`/api/v1/time-logs/${timelogId}`)
@@ -224,6 +225,7 @@ describe('TIMELOGS API', () => {
           .send(timelog)
           .expect(401);
       });
+
       test('Client with invalid token cant update timelog', async () => {
         const response = await request(app)
           .patch(`/api/v1/time-logs/${timelogId}`)

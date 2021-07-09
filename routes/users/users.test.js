@@ -153,6 +153,36 @@ describe('USERS API', () => {
             .expect(200);
         });
 
+        test('Admin cannot get a user that does not exist', async () => {
+            const response = await request(app)
+            .get(`/api/v1/users/60db2a0e81b5711094ad216f`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .expect('Content-Type', /json/)
+            .expect(404);
+        });
+
+        test('Admin cannot update a user that does not exist', async () => {
+            const response = await request(app)
+            .patch(`/api/v1/users/60db2a0e81b5711094ad216f`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .expect('Content-Type', /json/)
+            .expect(404);
+        });
+
+        test('Admin cannot delete user that does not exist', async () => {
+            const response = await request(app)
+            .delete(`/api/v1/users/60db2a0e81b5711094ad216f`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .expect('Content-Type', /json/)
+            .expect(404);
+        });
+
+        test('Admin cant change settings of non-existing user', async () => {
+            const response = await request(app)
+              .patch(`/api/v1/users/60db2a0e81b5711094ad216f/settings`)
+              .set('Authorization', `Bearer ${adminToken}`)
+              .expect(404);
+        });
   });
 
 
@@ -212,6 +242,15 @@ describe('USERS API', () => {
             expect(response.body.email).toStrictEqual(user.email);
         });
 
+        test('User manager cannot give basic user any higher role', async () => {
+            const response = await request(app)
+            .patch(`/api/v1/users/${userId}`)
+            .set('Authorization', `Bearer ${userManagerToken}`)
+            .send({...user, role:'user manager'})
+            .expect('Content-Type', /json/)
+            .expect(401);
+        });
+
         test('User manager successfully deletes a user', async () => {
             const response = await request(app)
             .delete(`/api/v1/users/${userId}`)
@@ -219,6 +258,89 @@ describe('USERS API', () => {
             .expect('Content-Type', /json/)
             .expect(200);
         });
+
+        test('User manager cannot get a user that does not exist', async () => {
+            const response = await request(app)
+            .get(`/api/v1/users/60db2a0e81b5711094ad216f`)
+            .set('Authorization', `Bearer ${userManagerToken}`)
+            .expect('Content-Type', /json/)
+            .expect(404);
+        });
+
+        test('User manager cannot update a user that does not exist', async () => {
+            const response = await request(app)
+            .patch(`/api/v1/users/60db2a0e81b5711094ad216f`)
+            .set('Authorization', `Bearer ${userManagerToken}`)
+            .expect('Content-Type', /json/)
+            .expect(404);
+        });
+
+        test('User manager cannot delete user that does not exist', async () => {
+            const response = await request(app)
+            .delete(`/api/v1/users/60db2a0e81b5711094ad216f`)
+            .set('Authorization', `Bearer ${userManagerToken}`)
+            .expect('Content-Type', /json/)
+            .expect(404);
+        });
+
+        test('User manager cant change anyone elses settings', async () => {
+            const response = await request(app)
+              .patch(`/api/v1/users/60e1ee0b762ed24291c52ad8/settings`) /// stavio od admina
+              .set('Authorization', `Bearer ${userManagerToken}`)
+              .expect(401);
+        });
+
+        test('User manager cant update a user with admin role', async()=>{
+            const response = await request(app)
+            .patch(`/api/v1/users/60e1ee0b762ed24291c52ad8`) /// admina
+            .set('Authorization', `Bearer ${userManagerToken}`)
+            .send(user)
+            .expect('Content-Type', /json/)
+            .expect(401);
+        });
+
+        test('User manager cant delete a user with admin role', async()=>{
+            const response = await request(app)
+            .delete(`/api/v1/users/60e1ee0b762ed24291c52ad8`) /// admina
+            .set('Authorization', `Bearer ${userManagerToken}`)
+            .expect('Content-Type', /json/)
+            .expect(401);
+        });
+
+        test('User manager cant update a user with user manager role', async()=>{
+            const response = await request(app)
+            .patch(`/api/v1/users/60dd8f8ab3d6721a9432ea40`)
+            .set('Authorization', `Bearer ${userManagerToken}`)
+            .send(user)
+            .expect('Content-Type', /json/)
+            .expect(401);
+        });
+
+        test('User manager cant delete a user with user manager role', async()=>{
+            const response = await request(app)
+            .delete(`/api/v1/users/60dd8f8ab3d6721a9432ea40`)
+            .set('Authorization', `Bearer ${userManagerToken}`)
+            .expect('Content-Type', /json/)
+            .expect(401);
+        });
+
+        test('User manager cant create a user of role admin', async () => {
+            const response = await request(app)
+                .post('/api/v1/users')
+                .set('Authorization', `Bearer ${userManagerToken}`)
+                .send({...user, role:"admin"})
+                .expect('Content-Type', /json/)
+                .expect(401);
+            });
+
+        test('User manager cant create user manager', async () => {
+            const response = await request(app)
+                .post('/api/v1/users')
+                .set('Authorization', `Bearer ${userManagerToken}`)
+                .send({...user, role:"user manager"})
+                .expect('Content-Type', /json/)
+                .expect(401);
+            });
 
   });
 
@@ -273,7 +395,7 @@ describe('USERS API', () => {
             .expect(401);
         });
 
-        test('Basic user cannot delete a user', async () => {
+        test('Basic user cannot delete any user', async () => {
             let userId='60db2a0e81b5711094ad215e';
             const response = await request(app)
             .delete(`/api/v1/users/${userId}`)

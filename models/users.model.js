@@ -41,7 +41,7 @@ return  await usersDatabase.findOneAndUpdate(
 }
 
 async function deleteUserById(id){
-      await usersDatabase.findOneAndDelete( {_id:id} );
+      return await usersDatabase.findOneAndDelete( {_id:id} );
 }
 
 async function updateSettingsById(id, modifiedInfo){
