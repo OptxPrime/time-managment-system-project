@@ -1,5 +1,6 @@
 const express = require('express');
 
+const tokenValidation = require('../../middleware/tokenValidation');
 const {
   httpRegisterUser,
   httpLogInUser,
@@ -10,6 +11,6 @@ const authRouter = express.Router();
 
 authRouter.post('/register', httpRegisterUser);
 authRouter.post('/login', httpLogInUser);
-authRouter.get('/me', httpWhoAmI);
+authRouter.get('/me', tokenValidation, httpWhoAmI);
 
 module.exports = authRouter;

@@ -42,8 +42,6 @@ async function httpLogInUser( req, res ){
 }
 
 function httpWhoAmI(req, res){
-  if(!isTokenValid(req)) 
-    res.status(401).json({"error": "You must be logged in!"});
   const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
   const tokenData = getTokenData(token).payload;
   const userInfo = { "email": tokenData.email, "role": tokenData.role, "settings": tokenData.settings };

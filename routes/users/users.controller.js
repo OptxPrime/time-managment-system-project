@@ -11,14 +11,10 @@ const {
 
 const {
     getTokenData,
-    isTokenValid,
     checkIsSpecificRole,
 } = require('../../services/JWTServices');
 
  async function httpGetAllUsers(req, res) {
-    if( !isTokenValid(req) ) 
-     return res.status(401).json({"error": "You must be logged in!"});
-  
     const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
     const currentUser = getTokenData(token).payload;
     if(currentUser.role === 'admin' || currentUser.role === 'user manager' ){
@@ -30,10 +26,7 @@ const {
   }
 
   async function httpCreateUser(req, res){
-    if(!isTokenValid(req)) 
-      return res.status(401).json({"error": "You must be logged in!"});
-
-    else if(checkIsSpecificRole(req,'user') || (checkIsSpecificRole(req,'user manager') && req.body.role!=='user')){
+    if(checkIsSpecificRole(req,'user') || (checkIsSpecificRole(req,'user manager') && req.body.role!=='user')){
       res.status(401).json({"error": "You don't have permission to perform this action!"});
     }
     else{
@@ -45,8 +38,6 @@ const {
   }
 
   async function httpGetUserById(req, res){
-    if(!isTokenValid(req)) return res.status(401).json({"error": "You must be logged in!"});
-
     const user = await getUserById(req.params.user_id);
     if(user===undefined || user===null)
       return res.status(404).json({"error":"user with specified id does not exist"});
@@ -54,9 +45,6 @@ const {
   }
 
   async function httpUpdateUserById(req, res){
-    if(!isTokenValid(req)) 
-      return res.status(401).json({"error": "You must be logged in!"});
-    
     const id = req.params.user_id;
     let user = await getUserById(id);
 
@@ -88,7 +76,6 @@ const {
   }
 
   async function httpDeleteUserById(req, res){
-    if(!isTokenValid(req)) return res.status(401).json({"error": "You must be logged in!"});
     const id = req.params.user_id;
     const toDelete = await getUserById(id);
     
@@ -104,7 +91,6 @@ const {
   }
 
   async function httpUpdateSettingsById(req, res){
-    if(!isTokenValid(req)) return res.status(401).json({"error": "You must be logged in!"});
     const id = req.params.user_id;
     const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
     const currentUser = getTokenData(token).payload;

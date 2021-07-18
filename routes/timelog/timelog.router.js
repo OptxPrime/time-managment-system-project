@@ -1,9 +1,11 @@
 const express = require('express');
+const tokenValidation = require('../../middleware/tokenValidation');
 const {
   httpCreateTimelog, httpGetTimelogs, httpUpdateTimelogById, httpDeleteTimelogById,
 } = require('./timelog.controller');
 
 const timelogsRouter = express.Router();
+timelogsRouter.use(tokenValidation)
 
 
 timelogsRouter.get('/', httpGetTimelogs);

@@ -10,15 +10,11 @@
  } = require('../../models/timelog.model');
 
  const{
-     isTokenValid,
      getTokenData,
      checkIsSpecificRole,
  } = require('../../services/JWTServices');
 
 async function httpCreateTimelog(req, res){
-    if(!isTokenValid(req)){
-        return res.status(401).json({"error": "You must be logged in!"});
-    }
     const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
     const currentUser = getTokenData(token).payload;
     const timelog = {...req.body};
@@ -32,9 +28,6 @@ async function httpCreateTimelog(req, res){
 }
 
 async function httpGetTimelogs(req, res){
-    if(!isTokenValid(req)){
-    return res.status(401).json({"error": "You must be logged in!"});
-    }
     const from = req.query.from? req.query.from : new Date("01/01/1000");
     const to = req.query.to? req.query.to: new Date("01/01/10000");
 
@@ -60,15 +53,12 @@ async function httpGetTimelogs(req, res){
 }
 
 async function httpUpdateTimelogById(req, res){
-    if(!isTokenValid(req)) 
-        return res.status(401).json({"error": "You must be logged in!"});
-
     const timelogId = req.params.time_log_id;
     const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
     const currentUser = getTokenData(token).payload;
     const dbTimelogId = await getTimelogById(timelogId);
-    
-    if(!checkIsSpecificRole(req, 'admin') && dbTimelogId.userId!==currentUser._id )
+
+    if(!checkIsSpecificRole(req, 'admin') && String(dbTimelogId.userId)!==String(currentUser._id) )
         return res.status(401).json({"error": "You don't have permission to perform this action!"});
     
     let modifiedInfo = {};
@@ -85,9 +75,6 @@ async function httpUpdateTimelogById(req, res){
 }
 
 async function httpDeleteTimelogById(req, res){
-    if(!isTokenValid(req)) 
-        return res.status(401).json({"error": "You must be logged in!"});
-    
     const timelogId = req.params.time_log_id;
     const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
     const currentUser = getTokenData(token).payload;
@@ -97,7 +84,7 @@ async function httpDeleteTimelogById(req, res){
         return res.status(404).json({"error":"Timelog with specified id does not exist"});
     }
     
-    if(!checkIsSpecificRole(req, 'admin') && timelog.userId!==currentUser._id )
+    if(!checkIsSpecificRole(req, 'admin') && String(timelog.userId)!==String(currentUser._id) )
         return res.status(401).json({"error": "You don't have permission to perform this action!"});
     
     const deletedTimelog = await deleteTimelogById(timelogId);    
